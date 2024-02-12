@@ -14,6 +14,8 @@ const execute = new Execute();
 execute.as("@a").at("@s").run("playsound random.pop @s ~ ~ ~ 10 1");
 ```
 
+詳細は[.d.ts](/scripts/execute/Execute.d.ts)を参照してください。
+
 ## Vertified Versions
 
 - 1.20.6x
