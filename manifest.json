@@ -1,0 +1,32 @@
+{
+  "format_version": 2,
+    "header": {
+        "description": "§6scripts/execute/index§rから§qCommandSourceStack§rと§qExecute§rをインポートして使ってください",
+        "name": "§l§sExecute Simulator§r",
+        "uuid": "02c9e93e-7d8d-4749-bcb5-8b68261b6127",
+        "version": [ 0, 0, 0 ],
+        "min_engine_version": [ 1, 20, 60 ]
+    },
+    "modules": [
+        {
+            "description": "",
+            "type": "data",
+            "uuid": "6809792c-3b3e-4594-bc9d-3e20ce7e4183",
+            "version": [ 0, 0, 0 ]
+        },
+        {
+            "description": "",
+            "type": "script",
+            "language": "JavaScript",
+            "uuid": "6513c966-20eb-4929-8e9c-07bc89df29cd",
+            "version": [ 0, 0, 0 ],
+            "entry": "scripts/main.js"
+        }
+    ],
+    "dependencies": [
+        {
+            "module_name": "@minecraft/server",
+            "version": "1.9.0-beta"
+        }
+    ]
+}

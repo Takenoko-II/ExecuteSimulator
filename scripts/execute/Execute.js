@@ -1,0 +1,604 @@
+import { Entity, MolangVariableMap, Vector, world } from "@minecraft/server";
+
+import { MultiDimensionalVector } from "../utils/index";
+
+import { CommandSourceStack } from "./CommandSourceStack";
+
+export class Execute {
+    constructor(defaultSource = new CommandSourceStack()) {
+        if (defaultSource instanceof CommandSourceStack) {
+            this.commandSourceStacks = [defaultSource];
+            this.transition = [[defaultSource]];
+        }
+        else throw new TypeError("第一引数はCommandSourceStack|undefinedだよ");
+    }
+
+    as(selector) {
+        if (typeof selector !== "string" && !Array.isArray(selector)) {
+            throw new TypeError("第一引数はstring|Entity[]だよ");
+        }
+
+        if (Array.isArray(selector)) {
+            if (selector.some(_ => !(_ instanceof Entity))) {
+                throw new TypeError("第一引数はstring|Entity[]だよ");
+            }
+        }
+
+        const result = [];
+
+        this.commandSourceStacks.forEach(commandSource => {
+            const list = [];
+            commandSource.readSelector(selector).forEach(entity => {
+                const clone = commandSource.clone();
+                clone.entity = entity;
+
+                list.push(clone);
+                this.transition.push([clone]);
+            });
+
+            result.push(...list);
+        });
+
+        this.commandSourceStacks = result;
+
+        return this;
+    }
+
+    at(selector) {
+        if (typeof selector !== "string" && !Array.isArray(selector)) {
+            throw new TypeError("第一引数はstring|Entity[]だよ");
+        }
+
+        if (Array.isArray(selector)) {
+            if (selector.some(_ => !(_ instanceof Entity))) {
+                throw new TypeError("第一引数はstring|Entity[]だよ");
+            }
+        }
+
+        const result = [];
+
+        this.commandSourceStacks.forEach(commandSourceStack => {
+            const list = [];
+            commandSourceStack.readSelector(selector).forEach(entity => {
+                const clone = commandSourceStack.clone();
+                clone.location = entity.location;
+                clone.rotation = entity.getRotation();
+                clone.dimension = entity.dimension;
+
+                list.push(clone);
+                this.transition.push([clone]);
+            });
+
+            result.push(...list);
+        });
+
+        this.commandSourceStacks = result;
+
+        return this;
+    }
+
+    get positioned() {
+        return {
+            $: (location) => {
+                if (typeof location !== "string" && !MultiDimensionalVector.isVector3(location)) {
+                    throw new TypeError("第一引数はstring|Vector3だよ");
+                }
+
+                this.commandSourceStacks = this.commandSourceStacks.map(commandSourceStack => {
+
+                    const clone = commandSourceStack.clone();
+
+                    clone.location = clone.readCoordinates(location);
+                    clone.anchor = "feet";
+    
+                    this.transition.find(list => list.includes(commandSourceStack)).push(clone);
+    
+                    return clone;
+                });
+
+                return this;
+            },
+            as: (selector) => {
+                if (typeof selector !== "string" && !Array.isArray(selector)) {
+                    throw new TypeError("第一引数はstring|Entity[]だよ");
+                }
+    
+                if (Array.isArray(selector)) {
+                    if (selector.some(_ => !(_ instanceof Entity))) {
+                        throw new TypeError("第一引数はstring|Entity[]だよ");
+                    }
+                }
+
+                const result = [];
+
+                this.commandSourceStacks.forEach(commandSource => {
+                    const list = [];
+                    commandSource.readSelector(selector).forEach(entity => {
+                        const clone = commandSource.clone();
+                        clone.location = entity.location;
+    
+                        list.push(clone);
+                        this.transition.push([clone]);
+                    });
+    
+                    result.push(...list);
+                });
+
+                this.commandSourceStacks = result;
+
+                return this;
+            }
+        };
+    }
+
+    set positioned(value) {
+        throw new Error("positionedは読み取り専用だよ");
+    }
+
+    get rotated() {
+        return {
+            $: (rotation) => {
+                if (typeof rotation !== "string" && !MultiDimensionalVector.isVector2(rotation)) {
+                    throw new TypeError("第一引数はstring|Vector2だよ");
+                }
+
+                this.commandSourceStacks = this.commandSourceStacks.map(commandSource => {
+                    commandSource.rotation = commandSource.readRotation(rotation);
+                    return commandSource;
+                });
+
+                return this;
+            },
+            as: (selector) => {
+                if (typeof selector !== "string" && !Array.isArray(selector)) {
+                    throw new TypeError("第一引数はstring|Entity[]だよ");
+                }
+    
+                if (Array.isArray(selector)) {
+                    if (selector.some(_ => !(_ instanceof Entity))) {
+                        throw new TypeError("第一引数はstring|Entity[]だよ");
+                    }
+                }
+
+                const result = [];
+
+                this.commandSourceStacks.forEach(commandSource => {
+                    const list = [];
+                    commandSource.readSelector(selector).forEach(entity => {
+                        const clone = commandSource.clone();
+                        clone.rotation = entity.getRotation();
+    
+                        list.push(clone);
+                        this.transition.push([clone]);
+                    });
+    
+                    result.push(...list);
+                });
+
+                this.commandSourceStacks = result;
+
+                return this;
+            }
+        };
+    }
+
+    set rotated(value) {
+        throw new Error("rotatedは読み取り専用だよ");
+    }
+
+    get facing() {
+        return {
+            $: (location) => {
+                if (typeof location !== "string" && !MultiDimensionalVector.isVector3(location)) {
+                    throw new TypeError("第一引数はstring|Vector3だよ");
+                }
+
+                this.commandSourceStacks = this.commandSourceStacks.map(commandSourceStack => {
+                    const clone = commandSourceStack.clone();
+    
+                    clone.rotation = MultiDimensionalVector.from(clone.location)
+                        .add(clone.getEntityAnchor())
+                        .getDirectionTo(clone.readCoordinates(location))
+                        .getRotation();
+                    
+                    this.transition.find(list => list.includes(commandSourceStack)).push(clone);
+    
+                    return clone;
+                });
+
+                return this;
+            },
+            entity: (selector, anchor) => {
+                if (typeof selector !== "string" && !Array.isArray(selector)) {
+                    throw new TypeError("第一引数はstring|Entity[]だよ");
+                }
+                else if (!["eyes", "feet"].includes(anchor)) {
+                    throw new TypeError('第二引数は"eyes"|"feet"だよ');
+                }
+    
+                if (Array.isArray(selector)) {
+                    if (selector.some(_ => !(_ instanceof Entity))) {
+                        throw new TypeError("第一引数はstring|Entity[]だよ");
+                    }
+                }
+
+                const result = [];
+
+                this.commandSourceStacks.forEach(commandSourceStack => {
+                    const list = [];
+                    commandSourceStack.readSelector(selector).forEach(entity => {
+                        let targetLocation;
+    
+                        if (anchor === "feet") {
+                            targetLocation = entity.location;
+                        }
+                        else {
+                            targetLocation = entity.getHeadLocation();
+                        }
+    
+                        const clone = commandSourceStack.clone();
+                        clone.rotation = MultiDimensionalVector.from(clone.location)
+                            .add(clone.getEntityAnchor())
+                            .getDirectionTo(targetLocation)
+                            .getRotation();
+    
+                        list.push(clone);
+                        this.transition.push([clone]);
+                    });
+    
+                    result.push(...list);
+                });
+
+                this.commandSourceStacks = result;
+
+                return this;
+            }
+        };
+    }
+
+    set facing(value) {
+        throw new Error("facingは読み取り専用だよ");
+    }
+
+    align(axes) {
+        if (typeof axes !== "string") {
+            throw new TypeError("第一引数はstringだよ");
+        }
+        else if (!(axes.split("").some(axis => "xyz".split("").includes(axis)) && new Set(axes.split("")).size === axes.length)) {
+            throw new SyntaxError("切り捨てる軸の指定が間違ってるよ");
+        }
+
+        this.commandSourceStacks = this.commandSourceStacks.map(commandSourceStack => {
+            const clone = commandSourceStack.clone();
+
+            axes.split("").forEach(axis => {
+                clone.location[axis] = Math.floor(clone.location[axis]);
+            });
+
+            clone.anchor = "feet";
+
+            this.transition.find(list => list.includes(commandSourceStack)).push(clone);
+
+            return clone;
+        });
+
+        return this;
+    }
+
+    get if() {
+        return {
+            entity: (selector) => {
+                if (typeof selector !== "string" && !Array.isArray(selector)) {
+                    throw new TypeError("第一引数はstring|Entity[]だよ");
+                }
+    
+                if (Array.isArray(selector)) {
+                    if (selector.some(_ => !(_ instanceof Entity))) {
+                        throw new TypeError("第一引数はstring|Entity[]だよ");
+                    }
+                }
+
+                this.commandSourceStacks = this.commandSourceStacks.filter(commandSource => {
+                    const entities = commandSource.readSelector(selector);
+                    return entities.length > 0;
+                });
+
+                return this;
+            },
+            block: (location, id, states) => {
+                if (typeof location !== "string" && !MultiDimensionalVector.isVector3(location)) {
+                    throw new TypeError("第一引数はstring|Vector3だよ");
+                }
+                else if (typeof id !== "string") {
+                    throw new TypeError("第二引数はstringだよ");
+                }
+                else if (states !== undefined && typeof states !== "string") {
+                    throw new TypeError("第三引数はstring|undefinedだよ");
+                }
+
+                this.commandSourceStacks = this.commandSourceStacks.filter(commandSource => {
+                    const location_ = commandSource.readCoordinates(location);
+                    try {
+                        const block = commandSource.dimension.getBlock(location_);
+                        if (states === undefined) return block.type.id === id;
+                        else return block.permutation.matches(id, CommandSourceStack.readBlockStates(states));
+                    }
+                    catch {
+                        if (id === "air" || id === "minecraft:air") return true;
+                        else return false;
+                    }
+                });
+
+                return this;
+            },
+            blocks: (bigin, end, destination, scanMode) => {
+                if (typeof bigin !== "string" && !MultiDimensionalVector.isVector3(bigin)) {
+                    throw new TypeError("第一引数はstring|Vector3だよ");
+                }
+                else if (typeof end !== "string" && !MultiDimensionalVector.isVector3(end)) {
+                    throw new TypeError("第二引数はstring|Vector3だよ");
+                }
+                else if (typeof destination !== "string" && !MultiDimensionalVector.isVector3(destination)) {
+                    throw new TypeError("第三引数はstring|Vector3だよ");
+                }
+                else if (!["all", "masked"].includes(scanMode)) {
+                    throw new TypeError('第四引数は"all"|"masked"だよ');
+                }
+
+                this.commandSourceStacks = this.commandSourceStacks.filter(commandSource => {
+                    const ifBlocks = [bigin, end, destination, scanMode].join(" ");
+                    const { successCount } = commandSource.runCommand(`execute if blocks ${ifBlocks}`);
+                    if (successCount > 0) return true;
+                    else return false;
+                });
+
+                return this;
+            },
+            score: (scoreA, operator, scoreB) => {
+                if (!["string", "number"].includes(typeof scoreA)) {
+                    throw new TypeError("第一引数はstring|numberだよ");
+                }
+                else if (typeof operator !== "string") {
+                    throw new TypeError("第二引数はstringだよ");
+                }
+                else if (!["string", "number"].includes(typeof scoreB)) {
+                    throw new TypeError("第三引数はstring|numberだよ");
+                }
+
+                this.commandSourceStacks = this.commandSourceStacks.filter(commandSource => {
+                    const a = commandSource.readScore(scoreA);
+                    const b = commandSource.readScore(scoreB);
+
+                    if (a === undefined || b === undefined) {
+                        return false;
+                    }
+
+                    switch (operator) {
+                        case "=":
+                            return a === b;
+                        case "<":
+                            return a < b;
+                        case ">":
+                            return a > b;
+                        case "=<":
+                            return a <= b;
+                        case "=>":
+                            return a >= b;
+                        default:
+                            throw new SyntaxError("存在しない演算子だよ");
+                    }
+                });
+
+                return this;
+            }
+        };
+    }
+
+    set if(value) {
+        throw new Error("ifは読み取り専用だよ");
+    }
+
+    get unless() {
+        return {
+            entity: (selector) => {
+                if (typeof selector !== "string" && !Array.isArray(selector)) {
+                    throw new TypeError("第一引数はstring|Entity[]だよ");
+                }
+    
+                if (Array.isArray(selector)) {
+                    if (selector.some(_ => !(_ instanceof Entity))) {
+                        throw new TypeError("第一引数はstring|Entity[]だよ");
+                    }
+                }
+
+                this.commandSourceStacks = this.commandSourceStacks.filter(commandSource => {
+                    const entities = commandSource.readSelector(selector);
+                    return entities.length === 0;
+                });
+
+                return this;
+            },
+            block: (location, id, states) => {
+                if (typeof location !== "string" && !MultiDimensionalVector.isVector3(location)) {
+                    throw new TypeError("第一引数はstring|Vector3だよ");
+                }
+                else if (typeof id !== "string") {
+                    throw new TypeError("第二引数はstringだよ");
+                }
+                else if (states !== undefined && typeof states !== "string") {
+                    throw new TypeError("第三引数はstring|undefinedだよ");
+                }
+
+                this.commandSourceStacks = this.commandSourceStacks.filter(commandSource => {
+                    const location_ = commandSource.readCoordinates(location);
+                    try {
+                        const block = commandSource.dimension.getBlock(location_);
+                        if (states === undefined) return block.type.id !== id;
+                        else return !block.permutation.matches(id, CommandSourceStack.readBlockStates(states));
+                    }
+                    catch {
+                        if (id === "air" || id === "minecraft:air") return false;
+                        else return true;
+                    }
+                });
+
+                return this;
+            },
+            blocks: (bigin, end, destination, scanMode) => {
+                if (typeof bigin !== "string" && !MultiDimensionalVector.isVector3(bigin)) {
+                    throw new TypeError("第一引数はstring|Vector3だよ");
+                }
+                else if (typeof end !== "string" && !MultiDimensionalVector.isVector3(end)) {
+                    throw new TypeError("第二引数はstring|Vector3だよ");
+                }
+                else if (typeof destination !== "string" && !MultiDimensionalVector.isVector3(destination)) {
+                    throw new TypeError("第三引数はstring|Vector3だよ");
+                }
+                else if (!["all", "masked"].includes(scanMode)) {
+                    throw new TypeError('第四引数は"all"|"masked"だよ');
+                }
+
+                this.commandSourceStacks = this.commandSourceStacks.filter(commandSource => {
+                    const ifBlocks = [bigin, end, destination, scanMode].join(" ");
+                    const { successCount } = commandSource.runCommand(`execute unless blocks ${ifBlocks}`);
+                    if (successCount > 0) return false;
+                    else return true;
+                });
+
+                return this;
+            },
+            score: (scoreA, operator, scoreB) => {
+                if (!["string", "number"].includes(typeof scoreA)) {
+                    throw new TypeError("第一引数はstring|numberだよ");
+                }
+                else if (typeof operator !== "string") {
+                    throw new TypeError("第二引数はstringだよ");
+                }
+                else if (!["string", "number"].includes(typeof scoreB)) {
+                    throw new TypeError("第三引数はstring|numberだよ");
+                }
+
+                this.commandSourceStacks = this.commandSourceStacks.filter(commandSource => {
+                    const a = commandSource.readScore(scoreA);
+                    const b = commandSource.readScore(scoreB);
+    
+                    if (a === undefined || b === undefined) {
+                        return true;
+                    }
+    
+                    switch (operator) {
+                        case "=":
+                            return a !== b;
+                        case "<":
+                            return !(a < b);
+                        case ">":
+                            return !(a > b);
+                        case "=<":
+                            return !(a <= b);
+                        case "=>":
+                            return !(a >= b);
+                        default:
+                            throw new SyntaxError("存在しない演算子だよ");
+                    }
+                });
+
+                return this;
+            }
+        };
+    }
+
+    set unless(value) {
+        throw new Error("unlessは読み取り専用だよ");
+    }
+
+    "in"(dimension) {
+        if (!["overworld", "nether", "the_end"].includes(dimension)) {
+            throw new TypeError('第一引数は"overworld"|"nether"|"the_end"だよ');
+        }
+
+        this.commandSourceStacks = this.commandSourceStacks.map(commandSource => {
+            commandSource.dimension = world.getDimension(dimension);
+            return commandSource;
+        });
+
+        return this;
+    }
+
+    anchored(anchor) {
+        if (!["eyes", "feet"].includes(anchor)) {
+            throw new TypeError('第一引数は"eyes"|"feet"だよ');
+        }
+
+        this.commandSourceStacks = this.commandSourceStacks.map(commandSourceStack => {
+            commandSourceStack.anchor = anchor;
+            return commandSourceStack;
+        });
+
+        return this;
+    }
+
+    run(command) {
+        if (typeof command !== "string") {
+            throw new TypeError("第一引数はstringだよ");
+        }
+
+        for (const commandSourceStack of this.commandSourceStacks) {
+            commandSourceStack.runCommand(command);
+        }
+    }
+
+    display() {
+        const molangVariableMap = new MolangVariableMap();
+
+        const origin = this.transition[0][0];
+        origin.dimension.spawnParticle("minecraft:obsidian_glow_dust_particle", origin.location);
+
+        for (let i = 1; i < this.transition.length; i++) {
+            const _ = this.transition[i];
+            const toI = _[0];
+
+            const fromI = this.transition.find(list => list.some(el => el.id === toI.parentId)).slice(-1)[0];
+            molangVariableMap.setColorRGB("variable.color", { red: 0, green: 1, blue: 0 });
+
+            for (let l = 1; l <= 10; l++) {
+                const location = Vector.lerp(fromI.location, toI.location, l / 10);
+                fromI.dimension.spawnParticle("minecraft:colored_flame_particle", location, molangVariableMap);
+            }
+    
+            molangVariableMap.setColorRGB("variable.color", { red: 0, green: 0.5, blue: 1 });
+    
+            for (let j = 1; j < _.length; j++) {
+                const fromJ = new MultiDimensionalVector(_[j - 1].location);
+                const toJ = new MultiDimensionalVector(_[j].location);
+        
+                for (let k = 1; k <= 10; k++) {
+                    const location = Vector.lerp(fromJ, toJ, k / 10);
+                    _[j - 1].dimension.spawnParticle("minecraft:colored_flame_particle", location, molangVariableMap);
+                }
+            }
+        }
+
+        
+        const { location: lastLocation, rotation: lastRotation } = this.transition.slice(-1)[0].slice(-1)[0];
+        const lastDirection = MultiDimensionalVector.getDirectionFromRotation(lastRotation);
+
+        molangVariableMap.setColorRGB("variable.color", { red: 1, green: 0, blue: 0 });
+
+        for (let i = 1; i <= 5; i++) {
+            const location = Vector.lerp(lastLocation, lastDirection.add(lastLocation), i / 5);
+            this.transition.slice(-1)[0].slice(-1)[0].dimension.spawnParticle("minecraft:colored_flame_particle", location, molangVariableMap);
+        }
+    }
+
+    modify(callbackFn) {
+        if (typeof callbackFn !== "function") {
+            throw new TypeError("第一引数は(CSS: CommandSourceStack) => CommandSourceStackだよ");
+        }
+
+        this.commandSourceStacks = this.commandSourceStacks.map(CSS => {
+            return callbackFn(CSS) ?? CSS;
+        });
+
+        return this;
+    }
+}
