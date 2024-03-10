@@ -1,14 +1,18 @@
 import { world } from "@minecraft/server";
 
-import { Execute } from "./execute/index";
+import { CommandSourceStack, Execute } from "./execute/index";
 
-world.afterEvents.itemUse.subscribe(({ source, itemStack }) => {
-    if (itemStack.typeId !== "minecraft:stick") return;
-
-    new Execute()
-        .as([source])
-        .at("@s")
-        .anchored("eyes")
-        .positioned.$("^ ^ ^2")
-        .display();
-});
+/*
+execute
+    .at("@e[name=B]")
+    .positioned.$("~200000 ~ ~")
+    .facing.entity("@s", "feet")
+    .positioned.$("^ ^ ^100000")
+    .positioned.$("~-100000 ~ ~")
+    .positioned.$("~ ~ ~200000")
+    .facing.entity("@s", "feet")
+    .rotated.$("~ 0")
+    .positioned.$("^ ^ ^100000")
+    .positioned.$("~ ~ ~-100000")
+    .display()
+*/

@@ -29,6 +29,12 @@ export class MultiDimensionalVector {
     constructor(vector: [number, number, number]);
 
     /**
+     * 次元数を基に多次元ベクトルのインスタンスを作成します。
+     * @param dimensionSize 次元の大きさ
+     */
+    constructor(dimensionSize: number);
+
+    /**
      * x, yの二成分を基に多次元ベクトルのインスタンスを作成します。
      * @param x ベクトルのx成分
      * @param y ベクトルのy成分
@@ -44,17 +50,20 @@ export class MultiDimensionalVector {
     constructor(x: number, y: number, z: number);
 
     /**
-     * x成分
+     * x成分    
+     * このプロパティは削除不可能です。
      */
     x: number;
 
     /**
-     * y成分
+     * y成分    
+     * このプロパティは削除不可能です。
      */
     y: number;
 
     /**
-     * z成分
+     * z成分    
+     * このプロパティは削除不可能です。
      */
     z?: number;
 
@@ -64,10 +73,15 @@ export class MultiDimensionalVector {
     readonly dimensionSize: VectorDimensionSize;
 
     /**
-     * 2つのベクトルを比較し、等しければtrueを返します。
-     * @param vector 比較するベクトル
+     * 各成分の値が数値であれば真を返します。
      */
-    is(vector: Vector2 | Vector3): boolean;
+    isValid(): boolean;
+
+    /**
+     * 2つのベクトルを比較し、等しければtrueを返します。
+     * @param other 比較するベクトル
+     */
+    is(other: Vector2 | Vector3): boolean;
 
     /**
      * ベクトルの長さを返します。
@@ -82,6 +96,16 @@ export class MultiDimensionalVector {
     setLength(length?: number): MultiDimensionalVector;
 
     /**
+     * ベクトルの長さを1にした新しいベクトルを返します。
+     */
+    normalized(): MultiDimensionalVector;
+
+    /**
+     * ベクトルの向きを逆にした新しいベクトルを返します。
+     */
+    inverted(): MultiDimensionalVector;
+
+    /**
      * 別のベクトルへの方向を返します。
      * @param vector 対象のベクトル
      */
@@ -91,7 +115,7 @@ export class MultiDimensionalVector {
      * 別のベクトルとの距離を返します。
      * @param vector 対象のベクトル
      */
-    getDistance(vector: Vector2 | Vector3): number;
+    getDistanceTo(vector: Vector2 | Vector3): number;
 
     /**
      * ベクトルの回転を返します。
@@ -100,39 +124,39 @@ export class MultiDimensionalVector {
 
     /**
      * 自身と別のベクトルがなす角の大きさを求めます。
-     * @param vector ベクトル
+     * @param other ベクトル
      */
-    getAngleBetween(vector: Vector2 | Vector3): number;
+    getAngleBetween(other: Vector2 | Vector3): number;
 
     /**
-     * 別のベクトルとの足し算を行います。
-     * @param vector ベクトル
+     * 別のベクトル・数との足し算を行います。
+     * @param addend 加数
      */
-    add(vector: Vector2 | Vector3): MultiDimensionalVector;
+    add(addend: number | Vector2 | Vector3 | [number, number] | [number, number, number]): MultiDimensionalVector;
 
     /**
-     * 別のベクトルとの引き算を行います。
-     * @param vector ベクトル
+     * 別のベクトル・数との引き算を行います。
+     * @param subtrahend 減数
      */
-    subtract(vector: Vector2 | Vector3): MultiDimensionalVector;
+    subtract(subtrahend: number | Vector2 | Vector3 | [number, number] | [number, number, number]): MultiDimensionalVector;
 
     /**
      * 別のベクトル・数との掛け算を行います。
      * @param multiplier 乗数
      */
-    multiply(multiplier: number | Vector2 | Vector3): MultiDimensionalVector;
+    multiply(multiplier: number | Vector2 | Vector3 | [number, number] | [number, number, number]): MultiDimensionalVector;
 
     /**
      * 別のベクトル・数との割り算を行います。
      * @param divisor 除数
      */
-    divide(divisor: number | Vector2 | Vector3): MultiDimensionalVector;
+    divide(divisor: number | Vector2 | Vector3 | [number, number] | [number, number, number]): MultiDimensionalVector;
 
     /**
      * 別のベクトル・数を指数として冪乗を行います。
      * @param exponent 指数
      */
-    pow(exponent: number | Vector2 | Vector3): MultiDimensionalVector;
+    pow(exponent: number | Vector2 | Vector3 | [number, number] | [number, number, number]): MultiDimensionalVector;
 
     /**
      * 各成分の小数点以下を切り捨てしたベクトルを返します。
@@ -145,44 +169,104 @@ export class MultiDimensionalVector {
     ceil(): MultiDimensionalVector;
 
     /**
-     * 別のベクトルとの内積を求めます。
-     * @param vector ベクトル
+     * 各成分の小数点以下を四捨五入したベクトルを返します。
      */
-    inner(vector: Vector2 | Vector3): number;
+    round(): MultiDimensionalVector;
+
+    /**
+     * 各成分をその絶対値にしたベクトルを返します。
+     */
+    abs(): MultiDimensionalVector;
+
+    /**
+     * 各成分を指定の値にしたベクトルを返します。
+     * @param value 任意の値
+     */
+    fill(value: number): MultiDimensionalVector;
+
+    /**
+     * 別のベクトルとの内積を求めます。
+     * @param other ベクトル
+     */
+    dot(other: Vector2 | Vector3): number;
 
     /**
      * 別のベクトルとの外積を求めます。
-     * @param vector ベクトル
+     * @param other ベクトル
      */
-    cross(vector: Vector3): MultiDimensionalVector;
+    cross(other: Vector3): MultiDimensionalVector;
 
     /**
-     * vectorを終了位置とし、tをコントロールとした線形補間を返します。
-     * @param vector 終了位置
-     * @param t コントロール
+     * このベクトルの別のベクトルへの射影ベクトルを求めます。
+     * @param other ベクトル
      */
-    lerp(vector: Vector2 | Vector3, t: number): MultiDimensionalVector;
+    projection(other: Vector2 | Vector3): MultiDimensionalVector;
 
     /**
-     * 自身と性質が同じベクトルを返します。
+     * このベクトルの別のベクトルからの反射影ベクトルを求めます。
+     * @param other ベクトル
+     */
+    rejection(other: Vector2 | Vector3): MultiDimensionalVector;
+
+    /**
+     * endを終了位置とし、tを割合とした線形補間を返します。
+     * @param end 終了位置
+     * @param t 割合
+     */
+    lerp(end: Vector2 | Vector3, t: number): MultiDimensionalVector;
+
+    /**
+     * endを終了位置とし、sを割合とした球面線形補間を返します。
+     * @param end 終了位置
+     * @param s 割合
+     */
+    slerp(end: Vector2 | Vector3, s: number): MultiDimensionalVector;
+
+    /**
+     * 自身と成分の各値が同じベクトルを返します。
      */
     clone(): MultiDimensionalVector;
 
     /**
      * 自身をローカル座標のz成分とし、ローカル座標の各成分となる座標を取得します。
      */
-    getLocalDirections(): LocalDirections;
+    getLocalAxes(): LocalAxes;
+
+    /**
+     * 成分の各値を格納した配列を返します。
+     */
+    toArray(): [number, number] | [number, number, number];
 
     /**
      * 与えられた関数をベクトルの各成分に対して呼び出し、その結果から新しいベクトルを作成します。
      * @param callbackFn 各成分に対して実行する関数
      */
-    map(callbackFn: (component: number) => number): MultiDimensionalVector;
+    map(callbackFn: (component: number, key: "x" | "y" | "z") => number): MultiDimensionalVector;
 
     /**
-     * prototype
+     * 与えられた関数をベクトルの各成分に対して呼び出し、その結果から新しいベクトルを作成します。
+     * @param components コールバックに分解されて渡される値
+     * @param callbackFn 各成分に対して実行する関数
      */
-    static readonly prototype: MultiDimensionalVector;
+    calc(components: number | Vector2 | Vector3 | [number, number] | [number, number, number], callbackFn: (a: number, b: number, key: "x" | "y" | "z") => number): MultiDimensionalVector;
+
+    /**
+     * 配列化したベクトルのreduce関数に与えられた関数を渡します。
+     * @param callbackFn コールバック関数
+     */
+    reduce(callbackFn: (previousValue: number, currentValue: number, currentIndex: number, array: [number, number] | [number, number, number]) => number): number;
+
+    /**
+     * ベクトルを文字列化します。
+     * @param format 形式
+     */
+    toString(format?: string): string;
+
+    /**
+     * 値がベクトルであればtrueを返します。
+     * @param value 任意の値
+     */
+    static isVector(value: any): boolean;
 
     /**
      * 値がVector2であればtrueを返します。
@@ -225,6 +309,13 @@ export class MultiDimensionalVector {
     static from(vector: [number, number, number]): MultiDimensionalVector;
 
     /**
+     * constructorと等価です。 
+     * 次元数を基に多次元ベクトルのインスタンスを作成します。
+     * @param dimensionSize 次元の大きさ
+     */
+    from(dimensionSize: number): MultiDimensionalVector;
+
+    /**
      * constructorと等価です。    
      * x, yの二成分を基に多次元ベクトルのインスタンスを作成します。
      * @param x ベクトルのx成分
@@ -254,16 +345,18 @@ export class MultiDimensionalVector {
      * @param angle 円の中心からの角度
      * @param radius 円の半径
      */
-    static getCircumferentialVector(center: Vector3, axis: Vector3, angle: number, radius?: number): MultiDimensionalVector;
+    static onCircumference(center: Vector3, axis: Vector3, angle: number, radius?: number): MultiDimensionalVector;
 
     /**
      * 定数ベクトルを取得します。
      * @param name 各定数ベクトルと紐づけられた名称
      */
-    static const<T extends keyof ConstantVectorMap>(name: T): ConstantVectorMap[T];
+    static const<T extends keyof ConstantSpatialVectorMap>(name: T): ConstantSpatialVectorMap[T];
+
+    static readonly prototype: MultiDimensionalVector;
 }
 
-type ConstantVectorMap = {
+type ConstantSpatialVectorMap = {
     /**
      * (0, 1, 0)
      */
@@ -318,7 +411,7 @@ interface VectorDimensionSize {
     match(vector: Vector2 | Vector3): boolean;
 }
 
-interface LocalDirections {
+interface LocalAxes {
     /**
      * ローカル座標のx成分
      */

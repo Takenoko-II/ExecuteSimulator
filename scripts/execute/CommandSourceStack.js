@@ -16,17 +16,24 @@ export class CommandSourceStack {
             this.rotation = origin.getRotation();
             this.dimension = origin.dimension;
             this.anchor = "feet";
-            this.origin = { typeId: origin.typeId };
+            this.origin = {
+                typeId: origin.typeId
+            };
+
             if (origin.typeId === "minecraft:player") {
                 if (origin.isOp()) {
                     this.origin.permissionLevel = 1;
                 }
-                else this.origin.permissionLevel = 0;
+                else {
+                    this.origin.permissionLevel = 0;
+                }
             }
             else if (origin.typeId === "minecraft:command_block_minecart") {
                 this.origin.permissionLevel = 1;
             }
-            else this.origin.permissionLevel = 0;
+            else {
+                this.origin.permissionLevel = 0;
+            }
         }
         else if (origin instanceof Block) {
             this.entity = null;
@@ -34,11 +41,16 @@ export class CommandSourceStack {
             this.rotation = { x: 0, y: 0 };
             this.dimension = origin.dimension;
             this.anchor = "feet";
-            this.origin = { typeId: origin.type.id };
+            this.origin = {
+                typeId: origin.type.id
+            };
+
             if (["minecraft:command_block", "minecraft:repeating_command_block", "minecraft:chain_command_block"].includes(origin.typeId)) {
                 this.origin.permissionLevel = 1;
             }
-            else this.origin.permissionLevel = 0;
+            else {
+                this.origin.permissionLevel = 0;
+            }
         }
         else if (origin === "server") {
             this.entity = null;

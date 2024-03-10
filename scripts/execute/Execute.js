@@ -26,10 +26,10 @@ export class Execute {
 
         const result = [];
 
-        this.commandSourceStacks.forEach(commandSource => {
+        this.commandSourceStacks.forEach(commandSourceStack => {
             const list = [];
-            commandSource.readSelector(selector).forEach(entity => {
-                const clone = commandSource.clone();
+            commandSourceStack.readSelector(selector).forEach(entity => {
+                const clone = commandSourceStack.clone();
                 clone.entity = entity;
 
                 list.push(clone);
@@ -92,7 +92,7 @@ export class Execute {
                     clone.anchor = "feet";
     
                     this.transition.find(list => list.includes(commandSourceStack)).push(clone);
-    
+
                     return clone;
                 });
 
@@ -562,23 +562,58 @@ export class Execute {
 
             for (let l = 1; l <= 10; l++) {
                 const location = Vector.lerp(fromI.location, toI.location, l / 10);
-                fromI.dimension.spawnParticle("minecraft:colored_flame_particle", location, molangVariableMap);
+                try {
+                    fromI.dimension.spawnParticle("minecraft:colored_flame_particle", location, molangVariableMap);
+                }
+                catch {}
             }
-    
+            
+
             molangVariableMap.setColorRGB("variable.color", { red: 0, green: 0.5, blue: 1 });
-    
+
             for (let j = 1; j < _.length; j++) {
                 const fromJ = new MultiDimensionalVector(_[j - 1].location);
                 const toJ = new MultiDimensionalVector(_[j].location);
-        
-                for (let k = 1; k <= 10; k++) {
-                    const location = Vector.lerp(fromJ, toJ, k / 10);
-                    _[j - 1].dimension.spawnParticle("minecraft:colored_flame_particle", location, molangVariableMap);
+
+                try {
+                    _[j - 1].dimension.spawnParticle("minecraft:colored_flame_particle", fromJ, molangVariableMap);
+                }
+                catch {}
+
+                try {
+                    _[j - 1].dimension.spawnParticle("minecraft:colored_flame_particle", toJ, molangVariableMap);
+                }
+                catch {}
+
+                const direction = fromJ.getDirectionTo(toJ);
+
+                if (fromJ.getDistanceTo(toJ) > 50) {
+                    for (let k = 1; k <= 20; k++) {
+                        const locationBigin = Vector.lerp(fromJ, fromJ.add(direction.setLength(50)), k / 20);
+                        const locationEnd = Vector.lerp(toJ, toJ.add(direction.setLength(-50)), k / 20);
+                        try {
+                            _[j - 1].dimension.spawnParticle("minecraft:colored_flame_particle", locationBigin, molangVariableMap);
+                        }
+                        catch {
+                            try {
+                                _[j - 1].dimension.spawnParticle("minecraft:colored_flame_particle", locationEnd, molangVariableMap);
+                            }
+                            catch {}
+                        }
+                    }
+                }
+                else {
+                    for (let k = 1; k <= 10; k++) {
+                        const location = Vector.lerp(fromJ, toJ, k / 10);
+                        try {
+                            _[j - 1].dimension.spawnParticle("minecraft:colored_flame_particle", location, molangVariableMap);
+                        }
+                        catch {}
+                    }
                 }
             }
         }
 
-        
         const { location: lastLocation, rotation: lastRotation } = this.transition.slice(-1)[0].slice(-1)[0];
         const lastDirection = MultiDimensionalVector.getDirectionFromRotation(lastRotation);
 
