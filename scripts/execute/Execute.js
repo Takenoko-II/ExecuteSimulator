@@ -1,4 +1,4 @@
-import { Entity, MolangVariableMap, Vector, world } from "@minecraft/server";
+import { Entity, MolangVariableMap, world } from "@minecraft/server";
 
 import { MultiDimensionalVector } from "../utils/index";
 
@@ -639,13 +639,12 @@ export class Execute {
             molangVariableMap.setColorRGB("variable.color", { red: 0, green: 1, blue: 0 });
 
             for (let l = 1; l <= 10; l++) {
-                const location = Vector.lerp(fromI.location, toI.location, l / 10);
+                const location = MultiDimensionalVector.from(fromI.location).lerp(toI.location, l / 10);
                 try {
                     fromI.dimension.spawnParticle("minecraft:colored_flame_particle", location, molangVariableMap);
                 }
                 catch {}
             }
-            
 
             molangVariableMap.setColorRGB("variable.color", { red: 0, green: 0.5, blue: 1 });
 
@@ -667,8 +666,8 @@ export class Execute {
 
                 if (fromJ.getDistanceTo(toJ) > 50) {
                     for (let k = 1; k <= 20; k++) {
-                        const locationBigin = Vector.lerp(fromJ, fromJ.add(direction.setLength(50)), k / 20);
-                        const locationEnd = Vector.lerp(toJ, toJ.add(direction.setLength(-50)), k / 20);
+                        const locationBigin = MultiDimensionalVector.from(fromJ).lerp(fromJ.add(direction.setLength(50)), k / 20);
+                        const locationEnd = MultiDimensionalVector.from(toJ).lerp(toJ.add(direction.setLength(-50)), k / 20);
                         try {
                             _[j - 1].dimension.spawnParticle("minecraft:colored_flame_particle", locationBigin, molangVariableMap);
                         }
@@ -682,7 +681,7 @@ export class Execute {
                 }
                 else {
                     for (let k = 1; k <= 10; k++) {
-                        const location = Vector.lerp(fromJ, toJ, k / 10);
+                        const location = MultiDimensionalVector.from(fromJ).lerp(toJ, k / 10);
                         try {
                             _[j - 1].dimension.spawnParticle("minecraft:colored_flame_particle", location, molangVariableMap);
                         }
@@ -698,8 +697,11 @@ export class Execute {
         molangVariableMap.setColorRGB("variable.color", { red: 1, green: 0, blue: 0 });
 
         for (let i = 1; i <= 5; i++) {
-            const location = Vector.lerp(lastLocation, lastDirection.add(lastLocation), i / 5);
-            this.transition.slice(-1)[0].slice(-1)[0].dimension.spawnParticle("minecraft:colored_flame_particle", location, molangVariableMap);
+            const location = MultiDimensionalVector.from(lastLocation).lerp(lastDirection.add(lastLocation), i / 5);
+            try {
+                this.transition.slice(-1)[0].slice(-1)[0].dimension.spawnParticle("minecraft:colored_flame_particle", location, molangVariableMap);
+            }
+            catch {}
         }
     }
 
