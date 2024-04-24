@@ -1,4 +1,4 @@
-import { world } from "@minecraft/server";
+import { system, world } from "@minecraft/server";
 
 import { CommandSourceStack, Execute } from "./execute/index";
 

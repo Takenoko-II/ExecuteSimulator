@@ -7,3 +7,5 @@ export * from "./NumberRange";
 export * from "./Random";
 
 export * from "./generic";
+
+export * from "./Numeric";

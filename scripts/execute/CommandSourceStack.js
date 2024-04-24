@@ -603,7 +603,7 @@ export class CommandSourceStack {
                     break;
                 }
                 case "local": {
-                    const direction = MultiDimensionalVector.getDirectionFromRotation(this.rotation).getLocalDirections()[component];
+                    const direction = MultiDimensionalVector.getDirectionFromRotation(this.rotation).getLocalAxes()[component];
                     localDirections[component] = direction.setLength(value);
                     break;
                 }

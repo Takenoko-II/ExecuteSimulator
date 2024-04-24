@@ -356,7 +356,7 @@ export class MultiDimensionalVector {
         if (!(this.dimensionSize.match(other) && this.dimensionSize.get() === 3)) throw new Error("この関数は3次元ベクトルにのみ対応しています");
         return new MultiDimensionalVector({
             x: this.y * other.z - this.z * other.y,
-            y: this.z * other.x - this.x * vector.z,
+            y: this.z * other.x - this.x * other.z,
             z: this.x * other.y - this.y * other.x
         });
     }
