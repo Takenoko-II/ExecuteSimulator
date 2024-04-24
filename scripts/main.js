@@ -1,8 +1,9 @@
-import { system, world } from "@minecraft/server";
+import { world, system } from "@minecraft/server";
 
-import { CommandSourceStack, Execute } from "./execute/index";
-
+import { Execute } from "./execute/index";
 /*
+const execute = new Execute();
+
 execute
     .at("@e[name=B]")
     .positioned.$("~200000 ~ ~")

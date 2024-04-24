@@ -5,6 +5,9 @@ import { MultiDimensionalVector } from "../utils/index";
 import { CommandSourceStack } from "./CommandSourceStack";
 
 export class Execute {
+    /**
+     * @param {CommandSourceStack} defaultSource 
+     */
     constructor(defaultSource = new CommandSourceStack()) {
         if (defaultSource instanceof CommandSourceStack) {
             this.commandSourceStacks = [defaultSource];
@@ -13,6 +16,9 @@ export class Execute {
         else throw new TypeError("第一引数はCommandSourceStack|undefinedだよ");
     }
 
+    /**
+     * @param {string | Entity[]} selector
+     */
     as(selector) {
         if (typeof selector !== "string" && !Array.isArray(selector)) {
             throw new TypeError("第一引数はstring|Entity[]だよ");
@@ -44,6 +50,9 @@ export class Execute {
         return this;
     }
 
+    /**
+     * @param {string | Entity[]} selector
+     */
     at(selector) {
         if (typeof selector !== "string" && !Array.isArray(selector)) {
             throw new TypeError("第一引数はstring|Entity[]だよ");
@@ -79,6 +88,9 @@ export class Execute {
 
     get positioned() {
         return {
+            /**
+             * @param {string | import("@minecraft/server").Vector3} location
+             */
             $: (location) => {
                 if (typeof location !== "string" && !MultiDimensionalVector.isVector3(location)) {
                     throw new TypeError("第一引数はstring|Vector3だよ");
@@ -98,6 +110,9 @@ export class Execute {
 
                 return this;
             },
+            /**
+             * @param {string | Entity[]} selector
+             */
             as: (selector) => {
                 if (typeof selector !== "string" && !Array.isArray(selector)) {
                     throw new TypeError("第一引数はstring|Entity[]だよ");
@@ -131,12 +146,15 @@ export class Execute {
         };
     }
 
-    set positioned(value) {
+    set positioned(_) {
         throw new Error("positionedは読み取り専用だよ");
     }
 
     get rotated() {
         return {
+            /**
+             * @param {string | import("@minecraft/server").Vector2} rotation
+             */
             $: (rotation) => {
                 if (typeof rotation !== "string" && !MultiDimensionalVector.isVector2(rotation)) {
                     throw new TypeError("第一引数はstring|Vector2だよ");
@@ -149,6 +167,9 @@ export class Execute {
 
                 return this;
             },
+            /**
+             * @param {string | Entity[]} selector
+             */
             as: (selector) => {
                 if (typeof selector !== "string" && !Array.isArray(selector)) {
                     throw new TypeError("第一引数はstring|Entity[]だよ");
@@ -182,12 +203,15 @@ export class Execute {
         };
     }
 
-    set rotated(value) {
+    set rotated(_) {
         throw new Error("rotatedは読み取り専用だよ");
     }
 
     get facing() {
         return {
+            /**
+             * @param {string | import("@minecraft/server").Vector3} location
+             */
             $: (location) => {
                 if (typeof location !== "string" && !MultiDimensionalVector.isVector3(location)) {
                     throw new TypeError("第一引数はstring|Vector3だよ");
@@ -208,6 +232,10 @@ export class Execute {
 
                 return this;
             },
+            /**
+             * @param {string | Entity[]} selector
+             * @param {"eyes" | "feet"} anchor
+             */
             entity: (selector, anchor) => {
                 if (typeof selector !== "string" && !Array.isArray(selector)) {
                     throw new TypeError("第一引数はstring|Entity[]だよ");
@@ -256,10 +284,13 @@ export class Execute {
         };
     }
 
-    set facing(value) {
+    set facing(_) {
         throw new Error("facingは読み取り専用だよ");
     }
 
+    /**
+     * @param {string} axes
+     */
     align(axes) {
         if (typeof axes !== "string") {
             throw new TypeError("第一引数はstringだよ");
@@ -287,6 +318,9 @@ export class Execute {
 
     get if() {
         return {
+            /**
+             * @param {string | Entity[]} selector
+             */
             entity: (selector) => {
                 if (typeof selector !== "string" && !Array.isArray(selector)) {
                     throw new TypeError("第一引数はstring|Entity[]だよ");
@@ -305,6 +339,11 @@ export class Execute {
 
                 return this;
             },
+            /**
+             * @param {string | import("@minecraft/server").Vector3} location
+             * @param {string} id
+             * @param {string} states
+             */
             block: (location, id, states) => {
                 if (typeof location !== "string" && !MultiDimensionalVector.isVector3(location)) {
                     throw new TypeError("第一引数はstring|Vector3だよ");
@@ -331,6 +370,12 @@ export class Execute {
 
                 return this;
             },
+            /**
+             * @param {string | import("@minecraft/server").Vector3} bigin
+             * @param {string | import("@minecraft/server").Vector3} end
+             * @param {string | import("@minecraft/server").Vector3} destination
+             * @param {"all" | "masked"} scanMode
+             */
             blocks: (bigin, end, destination, scanMode) => {
                 if (typeof bigin !== "string" && !MultiDimensionalVector.isVector3(bigin)) {
                     throw new TypeError("第一引数はstring|Vector3だよ");
@@ -354,6 +399,11 @@ export class Execute {
 
                 return this;
             },
+            /**
+             * @param {string | number} scoreA
+             * @param {string} operator
+             * @param {string | number} scoreB
+             */
             score: (scoreA, operator, scoreB) => {
                 if (!["string", "number"].includes(typeof scoreA)) {
                     throw new TypeError("第一引数はstring|numberだよ");
@@ -394,12 +444,15 @@ export class Execute {
         };
     }
 
-    set if(value) {
+    set if(_) {
         throw new Error("ifは読み取り専用だよ");
     }
 
     get unless() {
         return {
+            /**
+             * @param {string | Entity[]} selector
+             */
             entity: (selector) => {
                 if (typeof selector !== "string" && !Array.isArray(selector)) {
                     throw new TypeError("第一引数はstring|Entity[]だよ");
@@ -418,6 +471,11 @@ export class Execute {
 
                 return this;
             },
+            /**
+             * @param {string | import("@minecraft/server").Vector3} location
+             * @param {string} id
+             * @param {string} states
+             */
             block: (location, id, states) => {
                 if (typeof location !== "string" && !MultiDimensionalVector.isVector3(location)) {
                     throw new TypeError("第一引数はstring|Vector3だよ");
@@ -444,6 +502,12 @@ export class Execute {
 
                 return this;
             },
+            /**
+             * @param {string | import("@minecraft/server").Vector3} bigin
+             * @param {string | import("@minecraft/server").Vector3} end
+             * @param {string | import("@minecraft/server").Vector3} destination
+             * @param {"all" | "masked"} scanMode
+             */
             blocks: (bigin, end, destination, scanMode) => {
                 if (typeof bigin !== "string" && !MultiDimensionalVector.isVector3(bigin)) {
                     throw new TypeError("第一引数はstring|Vector3だよ");
@@ -467,6 +531,11 @@ export class Execute {
 
                 return this;
             },
+            /**
+             * @param {string | number} scoreA
+             * @param {string} operator
+             * @param {string | number} scoreB
+             */
             score: (scoreA, operator, scoreB) => {
                 if (!["string", "number"].includes(typeof scoreA)) {
                     throw new TypeError("第一引数はstring|numberだよ");
@@ -507,10 +576,13 @@ export class Execute {
         };
     }
 
-    set unless(value) {
+    set unless(_) {
         throw new Error("unlessは読み取り専用だよ");
     }
 
+    /**
+     * @param {"overworld" | "nether" | "the_end"} dimension
+     */
     "in"(dimension) {
         if (!["overworld", "nether", "the_end"].includes(dimension)) {
             throw new TypeError('第一引数は"overworld"|"nether"|"the_end"だよ');
@@ -524,6 +596,9 @@ export class Execute {
         return this;
     }
 
+    /**
+     * @param {"eyes" | "feet"} anchor
+     */
     anchored(anchor) {
         if (!["eyes", "feet"].includes(anchor)) {
             throw new TypeError('第一引数は"eyes"|"feet"だよ');
@@ -537,6 +612,9 @@ export class Execute {
         return this;
     }
 
+    /**
+     * @param {string} command
+     */
     run(command) {
         if (typeof command !== "string") {
             throw new TypeError("第一引数はstringだよ");
@@ -625,13 +703,17 @@ export class Execute {
         }
     }
 
-    modify(callbackFn) {
-        if (typeof callbackFn !== "function") {
+    /**
+     * @param {(stack: CommandSourceStack) => void} modifier
+     */
+    modify(modifier) {
+        if (typeof modifier !== "function") {
             throw new TypeError("第一引数は(CSS: CommandSourceStack) => CommandSourceStackだよ");
         }
 
         this.commandSourceStacks = this.commandSourceStacks.map(CSS => {
-            return callbackFn(CSS) ?? CSS;
+            modifier(CSS);
+            return CSS;
         });
 
         return this;

@@ -1,4 +1,4 @@
-import { world, Entity, Block, BlockAreaSize } from "@minecraft/server";
+import { world, Entity, Block } from "@minecraft/server";
 
 import { MultiDimensionalVector, Random, numberFunctions, shallowCopy } from "../utils/index";
 
@@ -340,7 +340,7 @@ export class CommandSourceStack {
                 case "dx": {
                     check("int", "float");
                     if (queryOptions.volume === undefined) {
-                        queryOptions.volume = new BlockAreaSize(1, 1, 1);
+                        queryOptions.volume = { x: 1, y: 1, z: 1 };
                     }
                     if (parameter[1] > 0) {
                         queryOptions.volume.x = parameter[1] + 1;
@@ -356,7 +356,7 @@ export class CommandSourceStack {
                 case "dy": {
                     check("int", "float");
                     if (queryOptions.volume === undefined) {
-                        queryOptions.volume = new BlockAreaSize(1, 1, 1);
+                        queryOptions.volume = { x: 1, y: 1, z: 1 };
                     }
                     if (parameter[1] > 0) {
                         queryOptions.volume.y = parameter[1] + 1;
@@ -372,7 +372,7 @@ export class CommandSourceStack {
                 case "dz": {
                     check("int", "float");
                     if (queryOptions.volume === undefined) {
-                        queryOptions.volume = new BlockAreaSize(1, 1, 1);
+                        queryOptions.volume = { x: 1, y: 1, z: 1 };
                     }
                     if (parameter[1] > 0) {
                         queryOptions.volume.z = parameter[1] + 1;
