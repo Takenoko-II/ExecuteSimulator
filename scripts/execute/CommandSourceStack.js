@@ -90,15 +90,15 @@ export class CommandSourceStack {
     };
 
     clone() {
-        const commandSourceStack = new CommandSourceStack();
-        commandSourceStack.entity = this.entity;
-        commandSourceStack.location = shallowCopy(this.location);
-        commandSourceStack.rotation = shallowCopy(this.rotation);
-        commandSourceStack.dimension = this.dimension;
-        commandSourceStack.anchor = this.anchor;
-        commandSourceStack.#internal.parentId = this.id;
-        commandSourceStack.origin = shallowCopy(this.origin);
-        return commandSourceStack;
+        const CSS = new CommandSourceStack();
+        CSS.entity = this.entity;
+        CSS.location = shallowCopy(this.location);
+        CSS.rotation = shallowCopy(this.rotation);
+        CSS.dimension = this.dimension;
+        CSS.anchor = this.anchor;
+        CSS.#internal.parentId = this.id;
+        CSS.origin = shallowCopy(this.origin);
+        return CSS;
     }
 
     readSelector(selector) {

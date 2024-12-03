@@ -1,6 +1,7 @@
 # ExecuteSimulator
 
 コマンド「execute」と同様の操作を扱うことができます。
+<br>現状Java版仕様です
 
 ## Usage
 
